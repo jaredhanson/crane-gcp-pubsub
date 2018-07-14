@@ -1,5 +1,5 @@
 {
-  "name": "crane-google-cloud-pubsub",
+  "name": "crane-gcp-pubsub",
   "version": "0.0.0",
   "description": "Google Cloud Pub/Sub adapter for Crane.",
   "keywords": [
