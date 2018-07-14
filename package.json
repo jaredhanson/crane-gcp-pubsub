@@ -14,10 +14,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/jaredhanson/crane-google-cloud-pubsub.git"
+    "url": "git://github.com/jaredhanson/crane-gcp-pubsub.git"
   },
   "bugs": {
-    "url": "http://github.com/jaredhanson/crane-google-cloud-pubsub/issues"
+    "url": "http://github.com/jaredhanson/crane-gcp-pubsub/issues"
   },
   "license": "MIT",
   "licenses": [
@@ -28,7 +28,7 @@
   ],
   "main": "./lib",
   "dependencies": {
-    "@google-cloud/pubsub": "^0.16.0"
+    "@google-cloud/pubsub": "^0.18.0"
   },
   "devDependencies": {
     "make-node": "^0.3.0",
