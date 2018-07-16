@@ -6,8 +6,12 @@ var expect = require('chai').expect;
 
 describe('crane-google-cloud-pubsub', function() {
   
-  it('should export hello world', function() {
-    expect(pkg.hello).to.equal('world');
+  it('should export functions', function() {
+    expect(pkg.createConnection).to.be.a('function');
+  });
+  
+  it('should export constructors', function() {
+    expect(pkg.Connection).to.be.a('function');
   });
   
 });
