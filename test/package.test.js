@@ -4,7 +4,7 @@ var pkg = require('..');
 var expect = require('chai').expect;
 
 
-describe('crane-google-cloud-pubsub', function() {
+describe('crane-gcp-pubsub', function() {
   
   it('should export functions', function() {
     expect(pkg.createConnection).to.be.a('function');
