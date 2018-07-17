@@ -23,7 +23,8 @@ describe('Connection', function() {
         publish: function() {}
       };
     
-      function MockPubSub() {
+      function MockPubSub(options) {
+        this.options = options;
       }
       MockPubSub.prototype.topic = function(topic) {
         if (topic !== 'my-topic') { throw new Error('Invalid topic: ' + topic) };
@@ -52,6 +53,10 @@ describe('Connection', function() {
           })
         });
       })
+      
+      it('should construct client with correct options', function() {
+        expect(connection._client.options).to.deep.equal({ projectId: 'example' });
+      });
   
       it('should attempt to publish message', function() {
         expect(publisherObj.publish.callCount).to.equal(1);
@@ -62,12 +67,3 @@ describe('Connection', function() {
   }); // #publish
   
 });
-
-
-
-
-function MockPubSub() {
-}
-
-MockPubSub.prototype.topic = function() {
-}
