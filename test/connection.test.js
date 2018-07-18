@@ -126,7 +126,8 @@ describe('Connection', function() {
   describe('#consume', function() {
     
     describe('successfully consuming a subscription', function() {
-      var subscriptionObj = new EventEmitter()
+      var subscriptionObj = new EventEmitter();
+      subscriptionObj.get = function(){};
     
       function MockPubSub(options) {
         this.options = options;
@@ -141,6 +142,14 @@ describe('Connection', function() {
         { '@google-cloud/pubsub': MockPubSub });
       var connection = new Connection({ projectId: 'example' });
   
+      before(function() {
+        sinon.stub(subscriptionObj, 'get').yields(null, subscriptionObj, { topic: 'projects/example/topics/my-topic' });
+      });
+    
+      after(function() {
+        subscriptionObj.get.restore();
+      });
+  
       before(function(done) {
         connection.connect(function() {
           connection.consume('my-subscription', function(err) {
@@ -153,7 +162,7 @@ describe('Connection', function() {
         expect(connection._client.options).to.deep.equal({ projectId: 'example' });
       });
       
-      describe('and receiving default message', function() {
+      describe('and receiving a message', function() {
         var msg;
         before(function(done) {
           connection.once('message', function(m) {
@@ -171,12 +180,75 @@ describe('Connection', function() {
         })
         
         it('should emit message', function() {
-          expect(msg.topic).to.equal('my-subscription');
+          expect(msg.topic).to.equal('my-topic');
+          expect(msg.queue).to.equal('my-subscription');
           expect(msg.data).to.deep.equal(Buffer.from('Hello Cloud Pub/Sub! Here is my message!'));
         });
-      }); // and receiving default message
+      }); // and receiving a message
       
     }); // successfully consuming a subscription
+    
+    describe('successfully asynchronously consuming a subscription', function() {
+      var subscriptionObj = new EventEmitter();
+      subscriptionObj.get = function(){};
+    
+      function MockPubSub(options) {
+        this.options = options;
+      }
+      MockPubSub.prototype.subscription = function(topic) {
+        if (topic !== 'my-subscription') { throw new Error('Invalid subscription: ' + subscription) };
+        return subscriptionObj;
+      }
+    
+    
+      var Connection = $require('../lib/connection',
+        { '@google-cloud/pubsub': MockPubSub });
+      var connection = new Connection({ projectId: 'example' });
+  
+      before(function() {
+        sinon.stub(subscriptionObj, 'get').yields(null, subscriptionObj, { topic: 'projects/example/topics/my-topic' });
+      });
+    
+      after(function() {
+        subscriptionObj.get.restore();
+      });
+  
+      before(function(done) {
+        connection.connect(function() {
+          connection.consume('my-subscription');
+          done();
+        });
+      })
+      
+      it('should construct client with correct options', function() {
+        expect(connection._client.options).to.deep.equal({ projectId: 'example' });
+      });
+      
+      describe('and receiving a message', function() {
+        var msg;
+        before(function(done) {
+          connection.once('message', function(m) {
+            msg = m;
+            done();
+          });
+          
+          subscriptionObj.emit('message', {
+            id: '136969346945',
+            attributes: {
+              key: 'value'
+            },
+            data: Buffer.from('Hello Cloud Pub/Sub! Here is my message!')
+          })
+        })
+        
+        it('should emit message', function() {
+          expect(msg.topic).to.equal('my-topic');
+          expect(msg.queue).to.equal('my-subscription');
+          expect(msg.data).to.deep.equal(Buffer.from('Hello Cloud Pub/Sub! Here is my message!'));
+        });
+      }); // and receiving a message
+      
+    }); // successfully asynchronously consuming a subscription
     
   }); // #consume
   
