@@ -250,6 +250,47 @@ describe('Connection', function() {
       
     }); // successfully asynchronously consuming a subscription
     
+    describe('failing to consume a subscription', function() {
+      var subscriptionObj = new EventEmitter();
+      subscriptionObj.get = function(){};
+    
+      function MockPubSub(options) {
+        this.options = options;
+      }
+      MockPubSub.prototype.subscription = function(topic) {
+        if (topic !== 'my-subscription') { throw new Error('Invalid subscription: ' + subscription) };
+        return subscriptionObj;
+      }
+    
+    
+      var Connection = $require('../lib/connection',
+        { '@google-cloud/pubsub': MockPubSub });
+      var connection = new Connection({ projectId: 'example' });
+  
+      before(function() {
+        sinon.stub(subscriptionObj, 'get').yields(new Error('5 NOT_FOUND: Resource not found (resource=my-subscription).'));
+      });
+    
+      after(function() {
+        subscriptionObj.get.restore();
+      });
+  
+      var error;
+      before(function(done) {
+        connection.connect(function() {
+          connection.consume('my-subscription', function(err) {
+            error = err;
+            done();
+          })
+        });
+      })
+      
+      it('should yield error', function() {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.message).to.equal('5 NOT_FOUND: Resource not found (resource=my-subscription).');
+      });
+    }); // failing to consume a subscription
+    
   }); // #consume
   
 });
