@@ -250,7 +250,7 @@ describe('Connection', function() {
       
     }); // successfully asynchronously consuming a subscription
     
-    describe('failing to consume a subscription', function() {
+    describe('failing to consume a subscription due to nonexistent subscription', function() {
       var subscriptionObj = new EventEmitter();
       subscriptionObj.get = function(){};
     
@@ -289,7 +289,7 @@ describe('Connection', function() {
         expect(error).to.be.an.instanceOf(Error);
         expect(error.message).to.equal('5 NOT_FOUND: Resource not found (resource=my-subscription).');
       });
-    }); // failing to consume a subscription
+    }); // failing to consume a subscription due to nonexistent subscription
     
   }); // #consume
   
